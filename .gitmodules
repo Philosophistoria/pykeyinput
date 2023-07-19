@@ -1,0 +1,3 @@
+[submodule "pyobservable"]
+	path = pyobservable
+	url = git@github.com:Philosophistoria/pyobservable.git
