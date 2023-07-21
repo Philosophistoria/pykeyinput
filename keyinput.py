@@ -30,14 +30,23 @@ class KeyListener (threading.Thread):
 
         self.isListening = True
         self.__Listening = threading.Event()
+        self.__Listening.clear()
 
+        # "Python signal handlers are always executed in the main Python thread of the main interpreter"
+        # https://docs.python.org/3/library/signal.html#signals-and-threads
+        # This __init__ is in the main thread if the initiation is done in it,
+        # which can be confirmed using the followin function in here and the main thread.
+        #print ("Thread id in",  self, threading.get_ident())
+        '''
         # invoke handle_io on a SIGIO event
         signal.signal(signal.SIGIO, self.handle_event)
+        stdin_fd = sys.stdin.fileno() # stdin's fd = 0
         # send io events on stdin (fd 0) to our process 
-        assert fcntl.fcntl(sys.stdin.fileno(), fcntl.F_SETOWN, os.getpid()) == 0
+        fcntl.fcntl(stdin_fd, fcntl.F_SETOWN, os.getpid())
         # tell the os to produce SIGIO events when data is written to stdin
-        assert fcntl.fcntl(sys.stdin.fileno(), fcntl.F_SETFL, os.O_ASYNC) == 0
-
+        #fcntl.fcntl(stdin_fd, fcntl.F_SETFL, os.O_ASYNC)
+        fcntl.fcntl(stdin_fd, fcntl.F_SETFL, fcntl.fcntl(stdin_fd, fcntl.F_GETFL) | fcntl.FASYNC)
+        '''
         self.getChar = _Getch()
 
     def __del__(self):
@@ -46,11 +55,12 @@ class KeyListener (threading.Thread):
 
     def run(self):
         while True:
+            '''''
             # if set, the event should be cleared so as to wait again later
             self.__Listening.clear()
             # stop until having it set
             self.__Listening.wait()
-
+            '''
             if not self.isListening:
                 break
                 
@@ -70,6 +80,7 @@ class KeyListener (threading.Thread):
 
     def handle_event(self, signal, frame):
         self.__Listening.set()
+        print("==pressed==", signal, frame)
 
 
     def terminate(self):
