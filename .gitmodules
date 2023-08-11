@@ -1,6 +1,4 @@
 [submodule "pyobservable"]
 	path = pyobservable
 	url = https://github.com/Philosophistoria/pyobservable.git
-[url "https://github.com/"]
-	insteadOf = "ssh://git@github.com/"
 
